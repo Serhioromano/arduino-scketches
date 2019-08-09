@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:pro",
+    "port": "COM5",
+    "sketch": "DmxModbusConverter.ino",
+    "configuration": "cpu=16MHzatmega328"
+}

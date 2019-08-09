@@ -1,90 +1,73 @@
-
 #include <DMXSerial.h>
 #include <Modbus.h>
 #include <ModbusSerial.h>
 #include <SoftwareSerial.h>
 #include <TM1637Display.h>
-const int CLK = 2;//Set the CLK pin connection to the display
-const int DIO = 3; //Set the DIO pin connection to the display
-TM1637Display display(CLK, DIO);
-int NumReg[2] = {1001, 2001}; //переменная регистра
+
+TM1637Display display(2, 3);
+SoftwareSerial mbSerial(10, 11);
 ModbusSerial mb;
-SoftwareSerial mbSerial(10,11);
-int btnUp, btnDown, btnSwch = 0;
-int btnUpM, btnDownM, btnSwchM = 0;
-int Num_index;
 
+int aiParams[2] = {1001, 2001}; // Массив переменных
+int aiBtn[3];                   // Кнопки
+int iParamNum;                  // Номер текущего параметра
 
-const int RedPin =    9;  // PWM output pin for Red Light.
-const int GreenPin =  6;  // PWM output pin for Green Light.
-//const int BluePin =   5;  // PWM output pin for Blue Light.
+const int btnUp = 8;
+const int btnDown = 7;
+const int btnSwitch = 5;
 
-#define RedDefaultLevel   100
-#define GreenDefaultLevel 200
-#define BlueDefaultLevel  255
-
-const int button_up = 8;   // переключение регистра вверх
-const int button_down = 7; // переключение регистра вниз
-const int button_var = 5;
-   
-void setup () {
+void setup()
+{
     display.setBrightness(0x0a);
     mb.config(&mbSerial, 19200, 12);
     mb.setSlaveId(1);
-    for (int x = 1; x < 80; x++) {
+    for (int x = 1; x < 80; x++)
+    {
         mb.addHreg(x);
-    }  
-    
-  
-    pinMode(RedPin,   OUTPUT); // sets the digital pin as output
-    pinMode(GreenPin, OUTPUT);
-    // pinMode(BluePin,  OUTPUT);
-    pinMode(button_up, INPUT);
-    pinMode(button_down, INPUT);
-    pinMode(button_down, INPUT);
+    }
+
+    pinMode(btnUp, INPUT);
+    pinMode(btnDown, INPUT);
+    pinMode(btnSwitch, INPUT);
 }
 
-
-void loop() {
+void loop()
+{
     DMXSerial.init(DMXReceiver);
-    mb.task();
     unsigned long lastPacket = DMXSerial.noDataSince();
-    btnUp = digitalRead(button_up);
-    btnDown = digitalRead(button_down);
-    btnSwch = digitalRead(button_var);
 
+    mb.task();
     if (lastPacket < 5000) {
-        analogWrite(RedPin,   DMXSerial.read(1));
-        analogWrite(GreenPin, DMXSerial.read(2));
-        //analogWrite(BluePin,  DMXSerial.read(3));
+        for (int i = aiParams[0] - 1000; i <= (aiParams[0] - 1000 + aiParams[1] - 2000); i++) {
+            mb.Hreg(i - 1, DMXSerial.read(i));
+        }
     } else {
-        analogWrite(RedPin,   RedDefaultLevel);
-        analogWrite(GreenPin, GreenDefaultLevel);
-        //analogWrite(BluePin,  BlueDefaultLevel);
-    } 
-
-    if (btnUp == HIGH && btnUpM == LOW) {
-      if ((Num_index==0 && NumReg[Num_index]<1512 ) || (Num_index==1 && NumReg[Num_index] <2512)) {
-         NumReg[Num_index]++;
-      }
-    }
-    btnUpM = btnUp;
-
-    if (btnDown == HIGH && btnDownM == LOW) {
-        if ((Num_index==0 && NumReg[Num_index]>1001 ) || (Num_index==1 && NumReg[Num_index] >2001)) {
-            NumReg[Num_index]--;
+        for (int i = aiParams[0] - 1000; i <= (aiParams[0] - 1000 + aiParams[1] - 2000); i++) {
+            mb.Hreg(i - 1, 0);
         }
     }
-    btnDownM = btnDown;
 
-    if (btnSwch == HIGH && btnSwchM == LOW){
-        Num_index = 1 - Num_index;
+    /* Обрабатываем кнопку увеличения значения */
+    if (digitalRead(btnUp) == HIGH && aiBtn[0] == LOW) {
+        if ((iParamNum == 0 && aiParams[iParamNum] < 1512) || (iParamNum == 1 && aiParams[iParamNum] < 2512)) {
+            aiParams[iParamNum]++;
+        }
     }
-    btnSwchM = btnSwch;
+    aiBtn[0] = digitalRead(btnUp);
 
-    for (int i = NumReg[0]-1000; i <= (NumReg[0]-1000 + NumReg[1]-2000); i++) {
-        mb.Hreg(i - 1, DMXSerial.read(i));
+    /* Обрабатываем кнопку уменьшения значения */
+    if (digitalRead(btnDown) == HIGH && aiBtn[1] == LOW) {
+        if ((iParamNum == 0 && aiParams[iParamNum] > 1001) || (iParamNum == 1 && aiParams[iParamNum] > 2001)) {
+            aiParams[iParamNum]--;
+        }
     }
+    aiBtn[1] = digitalRead(btnDown);
 
-    display.showNumberDec(NumReg[Num_index]);
+    /* Обрабатываем смены параметра */
+    if (digitalRead(btnSwitch) == HIGH && aiBtn[2] == LOW) {
+        iParamNum = 1 - iParamNum;
+    }
+    aiBtn[2] = digitalRead(btnSwitch);
+
+    display.showNumberDec(aiParams[iParamNum]);
 }
