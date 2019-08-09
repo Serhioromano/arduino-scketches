@@ -5,18 +5,18 @@
             "includePath": [
                 "C:\\Program Files (x86)\\Arduino\\tools\\**",
                 "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\**",
-                "${workspaceFolder}/libraries",
-                "C:/OSPanel/domains/arduino-scketches/libraries",
-                "C:/Program Files (x86)/Arduino/libraries",
-                "C:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries"
+                "C:\\OSPanel\\domains\\arduino-scketches\\libraries\\**",
+                "C:\\OSPanel\\domains\\arduino-scketches\\libraries\\DMXSerial-master\\src\\**",
+                "C:\\Program Files (x86)\\Arduino\\libraries\\**",
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries\\**"
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": false,
                 "path": [
-                    "${workspaceFolder}/libraries",
-                    "C:/OSPanel/domains/arduino-scketches/libraries",
-                    "C:/Program Files (x86)/Arduino/libraries",
-                    "C:/Program Files (x86)/Arduino/hardware/arduino/avr/libraries"
+                    "${workspaceFolder}\\libraries",
+                    "C:\\OSPanel\\domains\\arduino-scketches\\libraries",
+                    "C:\\Program Files (x86)\\Arduino\\libraries",
+                    "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\libraries"
                 ]
             },
             "defines": [

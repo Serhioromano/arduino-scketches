@@ -8,7 +8,7 @@
 #ifndef MODBUSSERIAL_H
 #define MODBUSSERIAL_H
 
-//#define USE_SOFTWARE_SERIAL
+#define USE_SOFTWARE_SERIAL
 
 #ifdef USE_SOFTWARE_SERIAL
 #include <SoftwareSerial.h>
